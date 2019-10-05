@@ -7,37 +7,63 @@ import java.util.Set;
 
 public class player extends dealer {
 	
-	private static int bankRoll;							// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
-	public static HashMap<Integer, Integer> activeBets;	// Map of players active bets (key is bet index, value is quantity on bet)
-	private static double expectedValue;					// Double representing current expected value for bets (assuming fair dice)
+	private static int bankRoll;					// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
+	public static Set<String> activeBets;			// Map of players active bets (key is bet index, value is quantity on bet)
 	
 	private static int passBet;						// Initialize to table minimum inherited from dealer
 	private static int passOdds;					// Initialize to 0, meaning no odds at the time
 	
 	private static int comeBet;						// Quantity of come bet at this point in time
+	private static int comeOdds;
 	private static Set<Integer> comeList;			// List of all placed come bets
+		
+	private static int currentWager;				// How much money is currently being wagered
+	private static int multiplier = 1;				// Mulitplier of table min	
 	
-	public player() {
-		bankRoll = 500;
-		activeBets = new HashMap<Integer, Integer>();
-		expectedValue = 0.0;
-	}
+	private static String passString = "Pass line";
+	private static String comeString = "Come line";
+	
+	private static String turnAction = "";
 	
 	/*
 	 * Player makes a move and updates all values accordingly
 	 */
 	private static void placeBets(String strategy) {
 		if (pointInt == 0) {
-			passBet = tableMin;
-			bankRoll -= tableMin;
+			betPassLine();
 		} else {
 			if (strategy.equals("3 Point Molly")) {
+				if (passOdds == 0) {
+					int bet = 2 * passBet;
+					passOdds = bet;
+					updateBankRoll(bet);
+				}
+					
 				if (comeList.size() < 3) {
-					comeBet = tableMin;
-					bankRoll -= tableMin;
+					betComeLine();
 				}
 			}
 		}
+	}
+	
+	private static void updateBankRoll(int bet) {
+		bankRoll -= bet;
+		currentWager += bet;
+	}
+	
+	private static void betPassLine() {
+		activeBets.add(passString);
+		int bet = multiplier * tableMin;
+		passBet = bet;
+		turnAction += "bet pass line";
+		updateBankRoll(bet);
+	}
+	
+	private static void betComeLine() {
+		activeBets.add(comeString);
+		int bet = multiplier * tableMin;
+		comeBet = bet;
+		updateBankRoll(bet);
 	}
 	
 	/**
@@ -55,26 +81,36 @@ public class player extends dealer {
 	 */
 	private static void pointOff(int d1, int d2) {
 		int total = d1 + d2;
-		System.out.println("You rolled a: " + total + " (" + d1 + " + " + d2 + ").");
+		printDice(d1, d2);
 		if (total == 7 || total == 11) {
-			bankRoll += (passBet * 2);
-			passBet = 0;
-			System.out.println("7 or 11 hit! Pass line won!");
+			hitPassLine();
 			return;
 		}
 		if (total == 2 || total == 3 || total == 12) {
-			passBet = 0;
-			System.out.println("Crap out :( Lost pass line bet");
+			crapOut();
 			return;
 		} else {
-			pointInt = total;
-			System.out.println("Point updated to: " + total);
+			setPoint(total);
+			return;
 		}
+	}
+	
+	private static void hitPassLine() {
+		bankRoll += (passBet * 2);
+		currentWager -= passBet;
+		passBet = 0;
+		activeBets.remove(passString);
+		System.out.println("7 or 11 hit! Pass line won!");
+	}
+	
+	private static void setPoint(int total) {
+		pointInt = total;
+		System.out.println("Point updated to: " + total);
 	}
 	
 	private static void pointOn(int d1, int d2) {
 		int total = d1 + d2;
-		System.out.println("You rolled a: " + total + "(" + d1 + "+" + d2 + ").");
+		printDice(d1, d2);
 		if (total == 7 || total == 11) {
 			crapOut();
 			System.out.println("7 or 11 :( You lose");
@@ -91,10 +127,16 @@ public class player extends dealer {
 		}
 	}
 	
-	// TODO Pay out hit come bet
+	// TODO Update this to hash map with value and wager)
+	// NOTE For now just assumed to place min bet
 	private static void comeHit(int total) {
-		
-		
+		comeList.remove(total);
+		int comeStraight = 2 * multiplier * comeBet;
+		double oddsPay = comeOdds + comeOdds*pointPayouts.get(total);
+		double totalReturns = comeStraight + oddsPay;
+		bankRoll += totalReturns;
+		currentWager -= comeStraight;
+		currentWager -= comeOdds;
 	}
 
 	// TODO - Pay out point, clear point bets
@@ -103,11 +145,28 @@ public class player extends dealer {
 	}
 	
 	private static void crapOut() {
+		currentWager = 0;
 		comeBet = 0;
-		comeList.clear();
+		comeOdds = 0;
 		passBet = 0;
 		passOdds = 0;
 		pointInt = 0;
+		comeList.clear();
+		activeBets.clear();
+	}
+	
+	/**
+	 * Summarize status of current bets with prints to console
+	 */
+	private static void currentBets() {
+		System.out.println("Current bankroll: " + bankRoll);
+		System.out.println("Current wager: " + currentWager);
+		System.out.println(turnAction);
+		turnAction = "";
+	}
+	
+	private static void printDice(int d1, int d2) {
+		System.out.println("You rolled a: " + (d1 + d2) + " (" + d1 + " + " + d2 + ").");
 	}
 
 	/**
@@ -124,11 +183,15 @@ public class player extends dealer {
 				pointOff(d1, d2);
 			else
 				pointOn(d1, d2);
+			currentBets();
 		}
 	}
 	
 	public static void main (String[] args) {
+		bankRoll = 500;
+		currentWager = 0;
 		comeList = new HashSet<Integer>();
+		activeBets = new HashSet<String>();
 		String strategy = "3 Point Molly";
 		int turns = 10;
 		letsPlay(strategy, turns);
