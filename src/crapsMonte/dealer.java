@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class dealer {
 	
-	public static int pointInt; 									// Keep track of point number (0 means no point)
-	public static int tableMin;									// Table minimum that you can bet
+	public static int pointInt = 0; 									// Keep track of point number (0 means no point)
+	public static int tableMin = 5;									// Table minimum that you can bet
 	
 	public static HashMap<Integer, Double> pointPayouts; // HashMap that tracks pay outs for all point odds
 	public static HashMap<Integer, Double> hardwayPayouts; // HashMap that tracks pay outs for all point odds

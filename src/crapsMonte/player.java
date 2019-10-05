@@ -51,6 +51,7 @@ public class player extends dealer {
 	private static void updateBankRoll(int bet) {
 		bankRoll -= bet;
 		currentWager += bet;
+		printAction();
 	}
 	
 	/**
@@ -60,7 +61,7 @@ public class player extends dealer {
 		activeBets.add(passString + oddsString);
 		int bet = 2 * passBet;
 		passOdds = bet;
-		turnAction += "bet pass line odds";
+		turnAction += " bet pass line odds";
 		updateBankRoll(bet);
 	}
 
@@ -72,7 +73,7 @@ public class player extends dealer {
 		activeBets.add(passString);
 		int bet = multiplier * tableMin;
 		passBet = bet;
-		turnAction += "bet pass line";
+		turnAction += " bet pass line";
 		updateBankRoll(bet);
 	}
 	
@@ -83,6 +84,7 @@ public class player extends dealer {
 		activeBets.add(comeString);
 		int bet = multiplier * tableMin;
 		comeBet = bet;
+		turnAction += " bet come line";
 		updateBankRoll(bet);
 	}
 	
@@ -138,7 +140,7 @@ public class player extends dealer {
 		} else {
 			if (total == pointInt) {
 				System.out.println("Point hit!");
-				pointHit();
+				pointHit(total);
 			}
 			if (comeList.contains(total)) {
 				System.out.println("Come hit!");
@@ -146,21 +148,34 @@ public class player extends dealer {
 			}
 		}
 	}
+	/**
+	 * Pay out for a dice hit (come and point determine global resets, this just pays you)
+	 * @param roll 		is the roll of the dice
+	 * @param straight 	is the straight up bet on that roll (pays 1 to 1)
+	 * @param odds 		are the odds bet placed on that roll (pays according to map structure from dealer
+	 * @param point 	is whether it was a point hit or not
+	 */
+	private static void diceHit(int roll, int straight, int odds) {
+		bankRoll += straight * 2;
+		bankRoll += odds + odds * pointPayouts.get(roll);
+		currentWager -= straight;
+		currentWager -= odds;
+	}
 	
 	// TODO Update this to hash map with value and wager)
 	// NOTE For now just assumed to place min bet
 	private static void comeHit(int total) {
 		comeList.remove(total);
-		int comeStraight = 2 * multiplier * comeBet;
-		double oddsPay = comeOdds + comeOdds*pointPayouts.get(total);
-		double totalReturns = comeStraight + oddsPay;
-		bankRoll += totalReturns;
-		currentWager -= comeStraight;
-		currentWager -= comeOdds;
+		diceHit(total, comeBet, comeOdds);
+		comeBet = 0;
+		comeOdds = 0;
 	}
 
 	// TODO - Pay out point, clear point bets
-	private static void pointHit() {
+	private static void pointHit(int total) {
+		diceHit(total, passBet, passOdds);
+		passBet = 0;
+		passOdds = 0;
 		
 	}
 	
@@ -175,16 +190,34 @@ public class player extends dealer {
 		activeBets.clear();
 	}
 	
+	/*
+	 * Print turn action
+	 */
+	private static void printAction() {
+		System.out.println("Turn action: " + turnAction);
+		turnAction = "";
+		printWager();
+	}
+	
 	/**
 	 * Summarize status of current bets with prints to console
 	 */
-	private static void currentBets() {
+	private static void printRoll() {
 		System.out.println("Current bankroll: " + bankRoll);
-		System.out.println("Current wager: " + currentWager);
-		System.out.println("Turn action: " + turnAction);
-		turnAction = "";
 	}
 	
+	/**
+	 * Summarize current wagers
+	 */
+	private static void printWager() {
+		System.out.println("Current wager: " + currentWager);
+	}
+	
+	/**
+	 * Print dice roll
+	 * @param d1 first die
+	 * @param d2 second die
+	 */
 	private static void printDice(int d1, int d2) {
 		System.out.println("You rolled a: " + (d1 + d2) + " (" + d1 + " + " + d2 + ").");
 	}
@@ -196,6 +229,8 @@ public class player extends dealer {
 	 */
 	private static void letsPlay(String strategy, int turns) {
 		for (int i = 0; i < turns; i ++) {
+			System.out.println("\nRoll #" + (i+1));
+			printRoll();
 			placeBets(strategy);
 			int d1 = diceRoll();
 			int d2 = diceRoll();
@@ -203,7 +238,6 @@ public class player extends dealer {
 				pointOff(d1, d2);
 			else
 				pointOn(d1, d2);
-			currentBets();
 		}
 	}
 	
