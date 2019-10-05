@@ -146,6 +146,9 @@ public class player extends dealer {
 				System.out.println("Come hit!");
 				comeHit(total);
 			}
+			if (comeBet != 0) {
+				comeList.add(total);
+			}
 		}
 	}
 	/**
@@ -242,6 +245,7 @@ public class player extends dealer {
 	}
 	
 	public static void main (String[] args) {
+		dealer.declarePoints();
 		comeList = new HashSet<Integer>();
 		activeBets = new HashSet<String>();
 		String strategy = "3 Point Molly";

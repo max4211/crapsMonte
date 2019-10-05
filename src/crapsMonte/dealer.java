@@ -19,7 +19,7 @@ public class dealer {
 	/*
 	 * Method to declare the payouts for various odds schemes
 	 */
-	private static void declarePoints() {
+	protected static void declarePoints() {
 		pointPayouts = new HashMap<Integer, Double>();
 		int[] points = {4, 5, 6, 8, 9, 10};
 		double payout = 0.0;
@@ -33,10 +33,6 @@ public class dealer {
 			System.out.println("Adding to payout point: " + point + ", payout: " + payout);
 			pointPayouts.put(point, payout);
 		}
-	}
-	
-	public static void main (String[] args) {
-		declarePoints();
 	}
 	
 }
