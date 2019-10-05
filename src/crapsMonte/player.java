@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class player extends dealer {
 	
-	private static int bankRoll;					// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
+	private static int bankRoll = 500;				// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
 	public static Set<String> activeBets;			// Map of players active bets (key is bet index, value is quantity on bet)
 	
 	private static int passBet;						// Initialize to table minimum inherited from dealer
@@ -17,11 +17,12 @@ public class player extends dealer {
 	private static int comeOdds;
 	private static Set<Integer> comeList;			// List of all placed come bets
 		
-	private static int currentWager;				// How much money is currently being wagered
+	private static int currentWager = 0;			// How much money is currently being wagered
 	private static int multiplier = 1;				// Mulitplier of table min	
 	
-	private static String passString = "Pass line";
-	private static String comeString = "Come line";
+	private static String passString = "pass line";	// Variuos strings to keep track of turn bets
+	private static String comeString = "come line";
+	private static String oddsString = " odds";
 	
 	private static String turnAction = "";
 	
@@ -34,11 +35,8 @@ public class player extends dealer {
 		} else {
 			if (strategy.equals("3 Point Molly")) {
 				if (passOdds == 0) {
-					int bet = 2 * passBet;
-					passOdds = bet;
-					updateBankRoll(bet);
+					betPassOdds();
 				}
-					
 				if (comeList.size() < 3) {
 					betComeLine();
 				}
@@ -46,10 +44,29 @@ public class player extends dealer {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param Update appropriate indices of bankroll (wager and roll) according to bet size
+	 */
 	private static void updateBankRoll(int bet) {
 		bankRoll -= bet;
 		currentWager += bet;
 	}
+	
+	/**
+	 * Place bet on pass line odds
+	 */
+	private static void betPassOdds() {
+		activeBets.add(passString + oddsString);
+		int bet = 2 * passBet;
+		passOdds = bet;
+		turnAction += "bet pass line odds";
+		updateBankRoll(bet);
+	}
+
+	/**
+	 * Place bet on pass line
+	 */
 	
 	private static void betPassLine() {
 		activeBets.add(passString);
@@ -59,6 +76,9 @@ public class player extends dealer {
 		updateBankRoll(bet);
 	}
 	
+	/**
+	 * Place bet on come line
+	 */
 	private static void betComeLine() {
 		activeBets.add(comeString);
 		int bet = multiplier * tableMin;
@@ -161,7 +181,7 @@ public class player extends dealer {
 	private static void currentBets() {
 		System.out.println("Current bankroll: " + bankRoll);
 		System.out.println("Current wager: " + currentWager);
-		System.out.println(turnAction);
+		System.out.println("Turn action: " + turnAction);
 		turnAction = "";
 	}
 	
@@ -188,8 +208,6 @@ public class player extends dealer {
 	}
 	
 	public static void main (String[] args) {
-		bankRoll = 500;
-		currentWager = 0;
 		comeList = new HashSet<Integer>();
 		activeBets = new HashSet<String>();
 		String strategy = "3 Point Molly";
