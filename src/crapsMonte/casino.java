@@ -2,17 +2,11 @@ package crapsMonte;
 
 import java.util.Random;
 
-public class gameProto {
+public class casino {
 	
 	// Global vars to keep track of point status and value
 	private static int pointInt;
 	private static boolean pointBool;
-	
-	// TODO - put some more thought into the strucutre, I am just coding away right now
-	public static void pointOff(int rollTotal) {
-		
-	}
-	
 	
 	/**
 	 * @return random dice roll between 1 and 6
