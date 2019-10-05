@@ -4,22 +4,23 @@ import java.util.HashMap;
 
 public class dealer {
 	
-	public int pointInt; 									// Keep track of point number (0 means no point)
-	public int tableMin;									// Table minimum that you can bet
+	public static int pointInt; 									// Keep track of point number (0 means no point)
+	public static int tableMin;									// Table minimum that you can bet
 	
-	public static HashMap<Integer, Double> pointOddsPayouts; // HashMap that tracks pay outs for all point odds
+	public static HashMap<Integer, Double> pointPayouts; // HashMap that tracks pay outs for all point odds
+	public static HashMap<Integer, Double> hardwayPayouts; // HashMap that tracks pay outs for all point odds
 	
 	public dealer() {
 		pointInt = 0;
 		tableMin = 5;
-		declarePayouts();
+		declarePoints();
 	}
 	
 	/*
 	 * Method to declare the payouts for various odds schemes
 	 */
-	private static void declarePayouts() {
-		pointOddsPayouts = new HashMap<Integer, Double>();
+	private static void declarePoints() {
+		pointPayouts = new HashMap<Integer, Double>();
 		int[] points = {4, 5, 6, 8, 9, 10};
 		double payout = 0.0;
 		for (int point: points) {
@@ -30,12 +31,12 @@ public class dealer {
 			if (point == 6 || point == 8)
 				payout = 6.0/5.0;
 			System.out.println("Adding to payout point: " + point + ", payout: " + payout);
-			pointOddsPayouts.put(point, payout);
+			pointPayouts.put(point, payout);
 		}
 	}
 	
 	public static void main (String[] args) {
-		declarePayouts();
+		declarePoints();
 	}
 	
 }
