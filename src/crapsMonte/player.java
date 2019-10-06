@@ -7,20 +7,21 @@ import java.util.Set;
 
 public class player extends dealer {
 	
-	private static int bankRoll = 500;				// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
-	public static Set<String> activeBets;			// Map of players active bets (key is bet index, value is quantity on bet)
+	private static int bankRoll = 500;					// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
+	public static HashMap<String, Integer> activeBets;	// Map of players active bets (key is bet index, value is quantity on bet)
+	public static HashMap<Integer, Integer> hardBetMap;	// Map of players active hard bets
 	
-	private static int passBet;						// Initialize to table minimum inherited from dealer
-	private static int passOdds;					// Initialize to 0, meaning no odds at the time
+	private static int passBet;							// Initialize to table minimum inherited from dealer
+	private static int passOdds;						// Initialize to 0, meaning no odds at the time
 	
 	private static int comeBet;						// Quantity of come bet at this point in time
-	private static int comeOdds;
-	private static Set<Integer> comeList;			// List of all placed come bets
-		
-	private static int currentWager = 0;			// How much money is currently being wagered
-	private static int multiplier = 1;				// Mulitplier of table min	
+	private static int comeOdds;						// Odds on come bet
+	public static HashMap<Integer, Integer> comeBetMap;	// HashMap of come bet number and sizes
 	
-	private static String passString = "pass line";	// Variuos strings to keep track of turn bets
+	private static int currentWager = 0;				// How much money is currently being wagered
+	private static int multiplier = 1;					// Mulitplier of table min	
+	
+	private static String passString = "pass line";		// Variuos strings to keep track of turn bets
 	private static String comeString = "come line";
 	private static String oddsString = " odds";
 	
@@ -37,7 +38,7 @@ public class player extends dealer {
 				if (passOdds == 0) {
 					betPassOdds();
 				}
-				if (comeList.size() < 3) {
+				if (comeBetMap.size() < 3) {
 					betComeLine();
 				}
 			}
@@ -58,8 +59,8 @@ public class player extends dealer {
 	 * Place bet on pass line odds
 	 */
 	private static void betPassOdds() {
-		activeBets.add(passString + oddsString);
 		int bet = 2 * passBet;
+		activeBets.put(passString + oddsString, bet);
 		passOdds = bet;
 		turnAction += " bet pass line odds";
 		updateBankRoll(bet);
@@ -70,8 +71,8 @@ public class player extends dealer {
 	 */
 	
 	private static void betPassLine() {
-		activeBets.add(passString);
 		int bet = multiplier * tableMin;
+		activeBets.put(passString, bet);
 		passBet = bet;
 		turnAction += " bet pass line";
 		updateBankRoll(bet);
@@ -81,8 +82,8 @@ public class player extends dealer {
 	 * Place bet on come line
 	 */
 	private static void betComeLine() {
-		activeBets.add(comeString);
 		int bet = multiplier * tableMin;
+		activeBets.put(comeString, bet);
 		comeBet = bet;
 		turnAction += " bet come line";
 		updateBankRoll(bet);
@@ -154,12 +155,12 @@ public class player extends dealer {
 				System.out.println("Point hit!");
 				pointHit(total);
 			}
-			if (comeList.contains(total)) {
+			if (comeBetMap.containsKey(total)) {
 				System.out.println("Come hit!");
 				comeHit(total);
 			}
 			if (comeBet != 0) {
-				comeList.add(total);
+				// TODO Place come bet
 			}
 		}
 	}
@@ -181,7 +182,7 @@ public class player extends dealer {
 	// TODO Update this to hash map with value and wager)
 	// NOTE For now just assumed to place min bet
 	private static void comeHit(int total) {
-		comeList.remove(total);
+		comeBetMap.remove(total);
 		diceHit(total, comeBet, comeOdds);
 		comeBet = 0;
 		comeOdds = 0;
@@ -205,7 +206,7 @@ public class player extends dealer {
 		passBet = 0;
 		passOdds = 0;
 		pointInt = 0;
-		comeList.clear();
+		comeBetMap.clear();
 		activeBets.clear();
 	}
 	
@@ -266,8 +267,8 @@ public class player extends dealer {
 	 */
 	public static void main (String[] args) {
 		dealer.declarePoints();
-		comeList = new HashSet<Integer>();
-		activeBets = new HashSet<String>();
+		comeBetMap = new HashMap<Integer, Integer>();
+		activeBets = new HashMap<String, Integer>();
 		String strategy = "3 Point Molly";
 		int turns = 10;
 		letsPlay(strategy, turns);
