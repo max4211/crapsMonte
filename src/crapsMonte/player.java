@@ -46,7 +46,7 @@ public class player extends dealer {
 	
 	/**
 	 * 
-	 * @param Update appropriate indices of bankroll (wager and roll) according to bet size
+	 * @param Update appropriate indices of bank roll (wager and roll) according to bet size
 	 */
 	private static void updateBankRoll(int bet) {
 		bankRoll -= bet;
@@ -117,6 +117,9 @@ public class player extends dealer {
 		}
 	}
 	
+	/**
+	 * Process appropriate global vars when the pass line hits
+	 */
 	private static void hitPassLine() {
 		bankRoll += (passBet * 2);
 		currentWager -= passBet;
@@ -125,11 +128,20 @@ public class player extends dealer {
 		System.out.println("7 or 11 hit! Pass line won!");
 	}
 	
+	/**
+	 * Set point value appropriately
+	 * @param total			the dice roll to set the point to
+	 */
 	private static void setPoint(int total) {
 		pointInt = total;
 		System.out.println("Point updated to: " + total);
 	}
 	
+	/**
+	 * Logical processes to process dice roll when the point is on
+	 * @param d1 the first dice roll
+	 * @param d2 the second dice roll
+	 */
 	private static void pointOn(int d1, int d2) {
 		int total = d1 + d2;
 		printDice(d1, d2);
@@ -159,10 +171,11 @@ public class player extends dealer {
 	 * @param point 	is whether it was a point hit or not
 	 */
 	private static void diceHit(int roll, int straight, int odds) {
-		bankRoll += straight * 2;
-		bankRoll += odds + odds * pointPayouts.get(roll);
+		double payout = straight * 2 + odds + odds * pointPayouts.get(roll);
+		bankRoll += payout;
 		currentWager -= straight;
 		currentWager -= odds;
+		System.out.println("Payout: " + payout);
 	}
 	
 	// TODO Update this to hash map with value and wager)
@@ -182,6 +195,9 @@ public class player extends dealer {
 		
 	}
 	
+	/**
+	 * Crap out, reset all values (come list, active bets, etc.)
+	 */
 	private static void crapOut() {
 		currentWager = 0;
 		comeBet = 0;
@@ -244,6 +260,10 @@ public class player extends dealer {
 		}
 	}
 	
+	/**
+	 * Main class to test results
+	 * @param args
+	 */
 	public static void main (String[] args) {
 		dealer.declarePoints();
 		comeList = new HashSet<Integer>();
