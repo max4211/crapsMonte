@@ -50,7 +50,8 @@ public class player extends dealer {
 	 */
 	private static void printActiveBets() {
 		int betSize;
-		System.out.println("Printint active bets: ");
+		System.out.println("ACTIVE BETS: ");
+		System.out.format("%24s%4s \n", "Description", "Num");
 		if (passBet != 0)
 			standardPrintBet(passBet, "pass line");
 		if (passOdds != 0)
@@ -148,12 +149,17 @@ public class player extends dealer {
 			return;
 		}
 		if (total == 2 || total == 3 || total == 12) {
-			crapOut();
+			offLoss();
 			return;
 		} else {
 			setPoint(total);
 			return;
 		}
+	}
+	
+	private static void offLoss() {
+		System.out.println("2, 3, or 12 hit, you lose :(");
+		passBet = 0;
 	}
 	
 	/**
@@ -254,7 +260,7 @@ public class player extends dealer {
 	 * Print turn action
 	 */
 	private static void printAction() {
-		System.out.println("Turn action: " + turnAction);
+		System.out.println("TURN ACTION: " + turnAction);
 		turnAction = "";
 		printWager();
 	}
@@ -263,14 +269,14 @@ public class player extends dealer {
 	 * Summarize status of current bets with prints to console
 	 */
 	private static void printBankRoll() {
-		System.out.println("Current bankroll: " + bankRoll);
+		System.out.println("BANKROLL: " + bankRoll);
 	}
 	
 	/**
 	 * Summarize current wagers
 	 */
 	private static void printWager() {
-		System.out.println("Current wager: " + currentWager);
+		System.out.println("CURRENT WAGER: " + currentWager);
 	}
 	
 	/**
@@ -279,7 +285,17 @@ public class player extends dealer {
 	 * @param d2 second die
 	 */
 	private static void printDice(int d1, int d2) {
-		System.out.println("You rolled a: " + (d1 + d2) + " (" + d1 + " + " + d2 + ").");
+		System.out.println("DICE: " + (d1 + d2) + " (" + d1 + " + " + d2 + ").");
+	}
+	
+	/**
+	 * Standardize print to round start
+	 */
+	private static void printRoundStart(int counter) {
+		String s = "";
+		if (pointInt != 0)
+			s = " (point on " + Integer.toString(pointInt) + ")";
+		System.out.println("\nROLL #: " + (counter+1) + s);
 	}
 
 	/**
@@ -289,7 +305,7 @@ public class player extends dealer {
 	 */
 	private static void letsPlay(String strategy, int turns) {
 		for (int i = 0; i < turns; i ++) {
-			System.out.println("\nRoll #" + (i+1));
+			printRoundStart(i);
 			printBankRoll();
 			placeBets(strategy);
 			int d1 = diceRoll();

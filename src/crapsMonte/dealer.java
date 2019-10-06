@@ -30,7 +30,7 @@ public class dealer {
 				payout = 3.0/2.0;
 			if (point == 6 || point == 8)
 				payout = 6.0/5.0;
-			System.out.println("Adding to payout point: " + point + ", payout: " + payout);
+			// System.out.println("Adding to payout point: " + point + ", payout: " + payout);
 			pointPayouts.put(point, payout);
 		}
 	}
