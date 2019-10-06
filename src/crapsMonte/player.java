@@ -7,24 +7,19 @@ import java.util.Set;
 
 public class player extends dealer {
 	
-	private static int bankRoll = 500;					// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
-	public static HashMap<String, Integer> activeBets;	// Map of players active bets (key is bet index, value is quantity on bet)
-	public static HashMap<Integer, Integer> hardBetMap;	// Map of players active hard bets
+	private static int bankRoll = 500;						// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
+	public static HashMap<Integer, Integer> hardBetMap;		// Map of players active hard bets
 	
-	private static int passBet;							// Initialize to table minimum inherited from dealer
-	private static int passOdds;						// Initialize to 0, meaning no odds at the time
-	private static int oddsMultiplier = 2;				// Multiple of pass bet allowed
+	private static int passBet;								// Initialize to table minimum inherited from dealer
+	private static int passOdds;							// Initialize to 0, meaning no odds at the time
+	private static int oddsMultiplier = 2;					// Multiple of pass bet allowed
 	
-	private static int comeBet;							// Quantity of come bet at this point in time
-	public static HashMap<Integer, Integer> comeBetStraight;	// HashMap of straight come bet number and sizes
+	private static int comeBet;								// Quantity of come bet at this point in time
+	public static HashMap<Integer, Integer> comeBetStraight;// HashMap of straight come bet number and sizes
 	public static HashMap<Integer, Integer> comeBetOdds;	// HashMap of odds come bet number and sizes
 	
-	private static int currentWager = 0;				// How much money is currently being wagered
-	private static int betMultiplier = 1;				// Mulitplier of table min	
-	
-	private static String passString = "pass line";		// Variuos strings to keep track of turn bets
-	private static String comeString = "come line";
-	private static String oddsString = " odds";
+	private static int currentWager = 0;					// How much money is currently being wagered
+	private static int betMultiplier = 1;					// Mulitplier of table min	
 	
 	private static String turnAction = "";
 	
@@ -55,10 +50,27 @@ public class player extends dealer {
 	 */
 	private static void printActiveBets() {
 		int betSize;
-		for (String s: activeBets.keySet()) {
-			betSize = activeBets.get(s);
-			System.out.println("Bet: " + s + ", Size: " + betSize);
+		System.out.println("Printint active bets: ");
+		if (passBet != 0)
+			standardPrintBet(passBet, "pass line");
+		if (passOdds != 0)
+			standardPrintBet(passOdds, "pass line odds");
+		// TODO Update the print active bets to scanning known data structures for bets, strings are iffy
+		for (int i: comeBetStraight.keySet()) {
+			betSize = comeBetStraight.get(i);
+			standardPrintBet(betSize, "come bet straight (" + i + ")");
+			if (comeBetOdds.containsKey(i))
+				standardPrintBet(comeBetOdds.get(i), "come bet odds (" + i + ")");
 		}
+	}
+	
+	/**
+	 * Way to standardize print statements to the console
+	 * @param num			The size of the bet (or number) to be displayed
+	 * @param description	A word description of what you would like to print
+	 */
+	private static void standardPrintBet(int num, String description) {
+		System.out.format("%24s%4d \n", description, num);
 	}
 	
 	/**
@@ -76,7 +88,6 @@ public class player extends dealer {
 	 */
 	private static void betPassOdds() {
 		int bet = oddsMultiplier * passBet;
-		activeBets.put(passString + oddsString, bet);
 		passOdds = bet;
 		turnAction += " bet pass line odds";
 		updateBankRoll(bet);
@@ -88,7 +99,6 @@ public class player extends dealer {
 	
 	private static void betPassLine() {
 		int bet = betMultiplier * tableMin;
-		activeBets.put(passString, bet);
 		passBet = bet;
 		turnAction += " bet pass line";
 		updateBankRoll(bet);
@@ -99,7 +109,6 @@ public class player extends dealer {
 	 */
 	private static void betComeLine() {
 		int bet = betMultiplier * tableMin;
-		activeBets.put(comeString, bet);
 		comeBet = bet;
 		turnAction += " bet come line";
 		updateBankRoll(bet);
@@ -112,7 +121,6 @@ public class player extends dealer {
 	 */
 	private static void betComeOdds(int total) {
 		int bet = oddsMultiplier * passBet;
-		activeBets.put(comeString + oddsString, bet);
 		comeBetOdds.put(total, bet);
 		comeBetStraight.put(total, betMultiplier * tableMin);
 		turnAction += " bet come line odds on " + total;
@@ -155,7 +163,6 @@ public class player extends dealer {
 		bankRoll += (passBet * 2);
 		currentWager -= passBet;
 		passBet = 0;
-		activeBets.remove(passString);
 		System.out.println("7 or 11 hit! Pass line won!");
 	}
 	
@@ -227,8 +234,6 @@ public class player extends dealer {
 		diceHit(total, passBet, passOdds);
 		passBet = 0;
 		passOdds = 0;
-		activeBets.remove(passString);
-		activeBets.remove(passString + oddsString);
 	}
 	
 	/**
@@ -243,7 +248,6 @@ public class player extends dealer {
 		pointInt = 0;
 		comeBetStraight.clear();
 		comeBetOdds.clear();
-		activeBets.clear();
 	}
 	
 	/*
@@ -305,7 +309,6 @@ public class player extends dealer {
 		dealer.declarePoints();
 		comeBetStraight = new HashMap<Integer, Integer>();
 		comeBetOdds = new HashMap<Integer, Integer>();
-		activeBets = new HashMap<String, Integer>();
 		String strategy = "3 Point Molly";
 		int turns = 10;
 		letsPlay(strategy, turns);
