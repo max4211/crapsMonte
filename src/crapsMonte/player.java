@@ -1,5 +1,6 @@
 package crapsMonte;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -8,7 +9,8 @@ import java.util.Set;
 public class player extends dealer {
 	
 	private static int bankRoll = 500;						// Players starting bankroll (keep track of performance, should not adjust betting style, gambling is a lifelong event)
-	public static HashMap<Integer, Integer> hardBetMap;		// Map of players active hard bets
+	private static ArrayList<Integer> trackFunds;			// Array list tracker of bank roll to plot at end
+	public static HashMap<Integer, Integer> hardBetMap;		// TODO Map of players active hard bets
 	
 	private static int passBet;								// Initialize to table minimum inherited from dealer
 	private static int passOdds;							// Initialize to 0, meaning no odds at the time
@@ -121,9 +123,9 @@ public class player extends dealer {
 	 * Additionally placing out a bet with odds on a certain number
 	 */
 	private static void betComeOdds(int total) {
-		int bet = oddsMultiplier * passBet;
+		int bet = oddsMultiplier * comeBet;
 		comeBetOdds.put(total, bet);
-		comeBetStraight.put(total, betMultiplier * tableMin);
+		comeBetStraight.put(total, comeBet);
 		turnAction += " bet come line odds on " + total;
 		updateBankRoll(bet);
 	}
@@ -224,7 +226,7 @@ public class player extends dealer {
 	 * @param total represent the dice roll, source of payout on come odds
 	 */
 	private static void comeHit(int total) {
-		System.out.println("Come hit!");
+		System.out.println("COME ON " + total + " HIT!");
 		int odds = 0;
 		if (comeBetOdds.containsKey(total)) {
 			odds = comeBetOdds.get(total);
@@ -234,9 +236,12 @@ public class player extends dealer {
 		diceHit(total, comeBet, odds);
 	}
 
-	// TODO - Pay out point, clear point bets
+	/**
+	 * Pay out a point with odds
+	 * @param total 	the sum of the dice that the point hit on
+	 */
 	private static void pointHit(int total) {
-		System.out.println("Point hit!");
+		System.out.println("POINT ON " + total + " HIT!");
 		diceHit(total, passBet, passOdds);
 		passBet = 0;
 		passOdds = 0;
@@ -269,6 +274,7 @@ public class player extends dealer {
 	 * Summarize status of current bets with prints to console
 	 */
 	private static void printBankRoll() {
+		// trackFunds.add(bankRoll);
 		System.out.println("BANKROLL: " + bankRoll);
 	}
 	
